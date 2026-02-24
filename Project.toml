@@ -1,0 +1,18 @@
+name = "SocialIdentity"
+uuid = "c0a3a5f3-4b1e-4e3d-8b7a-2d9c6e1f0a5b"
+authors = ["Fjalar J. de Haan <fjalar.dehaan@unimelb.edu.au>"]
+version = "0.1.0"
+
+[deps]
+Graphs = "86223c79-3864-5bf0-83f7-82e725a168b6"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+MetaGraphsNext = "fa8bd995-216d-47f1-8a91-f3b68cc3b4a6"
+Printf = "de0858da-6303-5e67-8744-51eddeeeb8d3"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
+
+[compat]
+julia = "1.10"
+Graphs = "1"
+MetaGraphsNext = "0.7"
+StaticArrays = "1"
