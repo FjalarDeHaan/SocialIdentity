@@ -90,7 +90,7 @@ resulting matrix has `purity == 1` and `von_neumann_entropy == 0`.
 """
 function GroupIdentity(ψ::Identity{N,T}) where {N, T <: Number}
     m = ψ * ψ'
-    return GroupIdentity{N,T,N*N}(Tuple(m))
+    return GroupIdentity{N,T,N*N}(ntuple(i -> m[i], Val(N*N)))
 end
 
 """
@@ -115,7 +115,7 @@ function GroupIdentity( weights::AbstractVector{<:Real}
         throw(ArgumentError("weights must be non-negative"))
     w = weights ./ sum(weights)
     m = sum(wᵢ * (ψᵢ * ψᵢ') for (wᵢ, ψᵢ) in zip(w, identities))
-    return GroupIdentity{N,T,N*N}(Tuple(m))
+    return GroupIdentity{N,T,N*N}(ntuple(i -> m[i], Val(N*N)))
 end
 
 """
@@ -130,50 +130,14 @@ the invariants).
 function GroupIdentity(m::AbstractMatrix{T}; check::Bool=true) where {T <: Number}
     n = size(m, 1)
     check && _check_density_matrix(m)
-    return GroupIdentity{n,T,n*n}(Tuple(m))
+    return GroupIdentity{n,T,n*n}(ntuple(i -> m[i], Val(n*n)))
 end
 
-# ── Physical quantities ────────────────────────────────────────────────────────
+# ── Internal helpers ───────────────────────────────────────────────────────────
+# purity, von_neumann_entropy, and alignment are defined in observables.jl.
+# _is_pure is internal to the display code.
 
-"""
-    purity(ρ::GroupIdentity) -> Float64
-
-Compute the purity Tr(ρ²) ∈ [1/N, 1]. Equal to 1 for pure states and 1/N
-for the maximally mixed state. Measures how concentrated the group identity
-is around a single pure state. See also `von_neumann_entropy`.
-"""
-purity(ρ::GroupIdentity) = real(tr(ρ * ρ))
-
-"""
-    von_neumann_entropy(ρ::GroupIdentity) -> Float64
-
-Compute the von Neumann entropy S = -Tr(ρ log ρ) in nats (natural logarithm).
-Equal to 0 for pure states and log(N) for the maximally mixed state.
-Measures identity diversity within the group.
-
-Zero contributions from eigenvalues below 1e-15 are omitted (numerically
-zero eigenvalues arise from pure or near-pure states).
-
-# References
-- Nielsen & Chuang (2000), §11.3.
-- Synthesis document §1.2.
-"""
-function von_neumann_entropy(ρ::GroupIdentity)
-    λs = eigvals(Hermitian(Matrix(ρ)))
-    return -sum(λ * log(λ) for λ in λs if λ > 1e-15)
-end
-
-"""
-    alignment(ρ::GroupIdentity) -> Float64
-
-Return the largest eigenvalue of ρ: the weight of the dominant pure state
-in the spectral decomposition. Ranges from 1/N (maximally mixed, all
-eigenvalues equal) to 1 (pure state). A high alignment indicates that one
-identity direction strongly dominates the group.
-"""
-alignment(ρ::GroupIdentity) = maximum(real.(eigvals(Hermitian(Matrix(ρ)))))
-
-_is_pure(ρ::GroupIdentity) = purity(ρ) ≈ 1.0
+_is_pure(ρ::GroupIdentity) = real(tr(ρ * ρ)) ≈ 1.0
 
 # ── Display ────────────────────────────────────────────────────────────────────
 

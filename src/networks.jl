@@ -431,10 +431,10 @@ function stochastic_matrix(sin::SocialIdentityNetwork)
     g = sin._graph
     n = nv(g.graph)
     W = zeros(Float64, n, n)
-    for e in edge_labels(g)
-        i = code_for(g, e[1])
-        j = code_for(g, e[2])
-        W[i,j] = e[3]
+    for (from_label, to_label) in edge_labels(g)
+        i = code_for(g, from_label)
+        j = code_for(g, to_label)
+        W[i,j] = g[from_label, to_label]
     end
     return W
 end

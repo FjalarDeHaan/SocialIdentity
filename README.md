@@ -157,4 +157,4 @@ src/
 
 ## Licence
 
-GPL v3
+MIT

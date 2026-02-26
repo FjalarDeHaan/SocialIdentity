@@ -47,17 +47,14 @@ StaticArrays.Size(::Type{Identity{N, T}}) where {N, T} = Size(N)
 end
 
 StaticArrays.similar_type(::Type{<:Identity}, ::Type{T}, ::Size{S}) where {T, S} =
-    Identity{S[1], T}
+    length(S) == 1 ? Identity{S[1], T} : SArray{Tuple{S...}, T, length(S), prod(S)}
 
 # ── Constructors ───────────────────────────────────────────────────────────────
 
-"""
-    Identity(values::NTuple{N,T}) -> Identity{N,T}
-
-Construct an Identity from a tuple. `N` and `T` are inferred from the tuple.
-No normalisation is applied — the caller is responsible for ensuring unit norm.
-"""
-Identity(values::NTuple{N, T}) where {N, T <: Number} = Identity{N, T}(values)
+# The default struct constructor Identity{N,T}(::NTuple{N,T}) is provided
+# automatically by Julia. No explicit outer NTuple constructor is needed —
+# defining one would overwrite the inner constructor and cause a precompilation
+# error. Callers can use Identity{N,T}(tuple) directly.
 
 """
     Identity(values::AbstractVector{T}; norm::Real=1.0) -> Identity

@@ -157,7 +157,12 @@ function collapse(ρ::GroupIdentity{N,T}, A::AbstractMatrix) where {N,T}
     isempty(new_weights) && throw(ArgumentError(
         "all eigenvectors are orthogonal to the context subspace"))
 
-    return GroupIdentity(new_weights, new_idents)
+    # Call the weighted mixture constructor explicitly by converting to
+    # concrete typed vectors, bypassing StaticArrays constructor interception.
+    return GroupIdentity(
+        convert(Vector{Float64}, new_weights),
+        convert(Vector{Identity{N,T}}, new_idents),
+    )
 end
 
 # ── Context sequences ──────────────────────────────────────────────────────────
