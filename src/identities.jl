@@ -230,10 +230,11 @@ end
 
 function _format_entry(z::Complex)
     r = abs(z)
-    r == 0.0           && return " 0   "
-    θ = angle(z)        # range (-π, π]
-    θ == 0.0           && return _fmt5(r)       # purely real positive, exact
-    θ == π             && return _fmt5(-r)      # purely real negative, exact
+    r == 0.0                  && return " 0   "
+    θ = angle(z)               # range (-π, π]
+    abs(θ)     < 1e-10        && return _fmt5(r)    # nearly positive real
+    abs(θ - π) < 1e-10        && return _fmt5(-r)   # nearly negative real
+    abs(θ + π) < 1e-10        && return _fmt5(-r)   # -π (same point)
     round(abs(θ / π), digits=2) == 0.0 && return _fmt5_pos(r) * " φ≈0"
     angle_s = _angle_str(θ)
     sep = startswith(angle_s, '≈') ? " φ" : " φ="
