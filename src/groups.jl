@@ -201,7 +201,17 @@ function Base.show(io::IO, ρ::GroupIdentity{N,T}) where {N,T}
     # Eigenvector listings
     for (i, idx) in enumerate(active)
         println(io, " ", kets[i], ":")
-        ψ   = Identity(vs[:, idx]; norm=1.0)
+        v   = vs[:, idx]
+        # Fix the global phase by rotating so the first component with
+        # non-negligible magnitude is real and positive. This is a canonical
+        # convention that makes the displayed phase meaningful and consistent:
+        # constructing GroupIdentity(ψ) and displaying it will show ψ's phase
+        # rather than LAPACK's arbitrary phase choice.
+        first_nz = findfirst(c -> abs(c) > 1e-10, v)
+        if !isnothing(first_nz)
+            v = v .* conj(v[first_nz]) ./ abs(v[first_nz])
+        end
+        ψ   = Identity(v; norm=1.0)
         buf = IOBuffer()
         show(buf, ψ)
         for line in split(String(take!(buf)), '\n')
